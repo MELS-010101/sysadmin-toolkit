@@ -1,98 +1,98 @@
-## 🚀 Installation
-
-### From Source
-
-```bash
-# 1. Clone repository
-git clone https://github.com/MELS-010101//sysadmin-toolkit.git
-cd sysadmin-toolkit
-
-# 2. Set executable permissions
-chmod +x src/linux/*.sh src/macos/*.sh lib/*.sh
-
-# 3. Add to PATH (optional)
-echo 'export PATH="$PATH:$(pwd)/bin"' >> ~/.bashrc
-source ~/.bashrc
-
-# 4. Run
-./bin/sat --help
-# or
-./src/linux/system_health.sh --help
-
+# 🛠️ SysAdmin-Toolkit
 
 [![CI/CD](https://github.com/your-org/sysadmin-toolkit/actions/workflows/publish.yml/badge.svg)](https://github.com/your-org/sysadmin-toolkit/actions/workflows/publish.yml)
 [![Version](https://img.shields.io/github/v/release/your-org/sysadmin-toolkit?color=blue&logo=github)](https://github.com/your-org/sysadmin-toolkit/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-orange)](#installation)
-[![ShellCheck](https://github.com/your-org/sysadmin-toolkit/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/your-org/sysadmin-toolkit/actions)
 
-> **Production-ready CLI toolkit** для автоматизации рутинных задач системного администратора. Мониторинг, очистка логов, аудит безопасности и многое другое — всё в одном инструменте.
-
----
+Production-ready CLI toolkit для автоматизации рутинных задач системного администратора.
 
 ## ✨ Features
 
-- 🐧 **Linux** (Ubuntu/Debian/RHEL/CentOS)
-- 🍎 **macOS** (Catalina и новее)
-- 🪟 **Windows Server** (2016+ / PowerShell 5.1+)
-- 🔒 **Безопасность**: dry-run режим, подтверждение деструктивных операций
-- 📦 **Пакетные менеджеры**: npm, NuGet, Homebrew (скоро)
-- 🐳 **Docker**: готовый стек мониторинга (Prometheus + Grafana)
-- ☁️ **Cloud**: интеграция с S3/MinIO для архивации
-- 🧪 **Тесты**: покрытие Bats (Bash) + Pester (PowerShell)
-
----
+- Linux (Ubuntu/Debian/RHEL/CentOS)
+- macOS (Catalina и новее)
+- Windows Server (2016+ / PowerShell 5.1+)
+- Dry-run режим и подтверждение операций
+- Docker стек (Prometheus + Grafana)
+- Интеграция с S3/MinIO
+- Тесты: Bats + Pester
 
 ## 📦 Установка
 
-### 🔥 Быстрый старт (Recommended)
+### Быстрый старт
 
-```bash
-# Clone repository
-git clone https://github.com/MELS-010101//sysadmin-toolkit.git
+git clone https://github.com/your-org/sysadmin-toolkit.git
 cd sysadmin-toolkit
-
-# Install & setup
+chmod +x src/linux/*.sh src/macos/*.sh lib/*.sh
 make install
-
-# Verify installation
 sat --help
 
-📥 Через пакетные менеджеры
-Linux/macOS (npm)
+### Через npm (Linux/macOS)
+
 npm install -g @your-org/sysadmin-toolkit
 
-Windows (NuGet)
+### Через NuGet (Windows)
+
 Install-Package SysAdmin-Toolkit
 
-Docker
-docker run --rm -it ghcr.io/your-org/sysadmin-toolkit:latest --help
+## 🚀 Использование
 
-🚀 Использование
-Основные команды
-
-# System Health Check
 sat health
-
-# Log Cleanup (dry-run first!)
 sat log-clean --dir /var/log --days 30 --dry-run
-sat log-clean --dir /var/log --days 30 --upload-s3 my-logs-bucket
-
-Примеры
-Мониторинг системы
-
 ./src/linux/system_health.sh
-./src/linux/system_health.sh >> /var/log/sat-health.log 2>&1
+./src/linux/log_cleanup.sh --dir /var/log --days 30 --archive /backup/logs
 
-# Dry-run
-./src/linux/log_cleanup.sh --dir /var/log --days 30 --dry-run
+## 📚 Модули
 
-Очистка логов
-# Реальная очистка с архивацией
-./src/linux/log_cleanup.sh \
-  --dir /var/log \
-  --days 30 \
-  --archive /backup/logs \
-  --upload-s3 company-logs
+| Модуль | Команда | Статус |
+|--------|---------|--------|
+| System Health | sat health | ✅ Stable |
+| Log Cleanup | sat log-clean | ✅ Stable |
+| Network Audit | sat net-check | 🚧 WIP |
 
+## ⚙️ Конфигурация
+
+~/.config/sat/config.conf:
+
+LOG_LEVEL=info
+LOG_DAYS=30
+ARCHIVE_DIR=/backup/logs
+
+## 🐳 Docker
+
+cd integrations/docker
+docker-compose up -d
+
+Grafana: http://localhost:3000 (admin/admin)
+Prometheus: http://localhost:9090
+
+## 🛠️ Разработка
+
+make permissions
+make lint
+make test
+make install
+
+## 📖 Документация
+
+- docs/ARCHITECTURE.md
+- CONTRIBUTING.md
+- SECURITY.md
+- CHANGELOG.md
+
+## 🔐 Безопасность
+
+- Dry-run режим по умолчанию
+- Подтверждение деструктивных операций
+- Локальное выполнение
+
+## 📄 License
+
+MIT License
+
+## 👥 Авторы
+
+Lead DevOps: @your-username
+
+Made with ❤️ by SysAdmins for SysAdmins
   

@@ -93,7 +93,7 @@ MIT License
 
 ## 👥 Авторы
 
-Lead DevOps: @your-username
+Lead DevOps: @MELS-010101
 
 Made with ❤️ by SysAdmins for SysAdmins
   

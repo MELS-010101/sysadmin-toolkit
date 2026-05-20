@@ -1,0 +1,71 @@
+name: CI/CD & Publish to GitHub Packages
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+  checks: write
+
+env:
+  NODE_VERSION: '20'
+  DOTNET_VERSION: '8.x'
+
+jobs:
+  lint:
+    name:  Lint Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Lint Bash (Linux & macOS)
+        run: find src/linux src/macos -name "*.sh" -type f -exec shellcheck --severity=error {} +
+
+      - name: Lint PowerShell (Windows)
+        uses: microsoft/psscriptanalyzer-action@v1.1
+        with:
+          path: ./src/windows
+          recurse: true
+          severity: Error,Warning
+
+  publish-npm:
+    name: 📦 Publish to GitHub npm
+    needs: lint
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@your-org'
+      - name: Publish
+        run: npm publish
+        working-directory: packaging/npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-nuget:
+    name: 📦 Publish to GitHub NuGet
+    needs: lint
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Pack
+        run: dotnet pack sysadmin-toolkit.nuspec -c Release -o dist/
+        working-directory: packaging/nuget
+      - name: Push
+        run: dotnet nuget push dist/*.nupkg --source "https://nuget.pkg.github.com/your-org" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate

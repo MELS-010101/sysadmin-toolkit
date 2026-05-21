@@ -1,30 +1,71 @@
-#!/usr/bin/env bash
-# bin/sat - Cross-platform entry point
-set -euo pipefail
+#!/bin/bash
+# SysAdmin-Toolkit Main Entrypoint
+# Usage: sat <command> [options]
 
-readonly TOOLKIT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-readonly VERSION="1.0.0"
+set -e
 
-detect_os() {
-  case "$(uname -s)" in
-    Linux*)   echo "linux" ;;
-    Darwin*)  echo "macos" ;;
-    CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
-    *)        echo "unknown" ;;
-  esac
+VERSION="1.0.0"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+LINUX_DIR="$ROOT_DIR/src/linux"
+MACOS_DIR="$ROOT_DIR/src/macos"
+
+OS_TYPE="$(uname)"
+
+show_help() {
+    cat <<EOF
+SysAdmin-Toolkit v${VERSION}
+Usage: sat <command> [options]
+
+Available commands:
+  health      Check system health (CPU, RAM, Disk, Services)
+  log-clean   Rotate & archive old logs [--dir DIR] [--days N]
+  security    Run security audit (passwords, SSH, firewall, ports)
+  net-check   Network audit & open port scan
+  --help      Show this help message
+
+Examples:
+  sat health
+  sat log-clean --dir /var/log --days 30
+  sat security
+EOF
 }
 
-main() {
-  local os
-  os="$(detect_os)"
-  
-  if [[ "$os" == "windows" ]]; then
-    # PowerShell entry
-    exec pwsh -NoProfile -ExecutionPolicy Bypass -File "${TOOLKIT_DIR}/src/windows/System-Health.ps1" "$@"
-  else
-    # Unix entry
-    exec bash "${TOOLKIT_DIR}/src/${os}/system_health.sh" "$@"
-  fi
-}
-
-main "$@"
+case "${1:-}" in
+    health)
+        if [ "$OS_TYPE" = "Darwin" ]; then
+            bash "$MACOS_DIR/system_health.sh" "${@:2}"
+        else
+            bash "$LINUX_DIR/system_health.sh" "${@:2}"
+        fi
+        ;;
+    log-clean)
+        if [ "$OS_TYPE" = "Darwin" ]; then
+            bash "$MACOS_DIR/log_cleanup.sh" "${@:2}"
+        else
+            bash "$LINUX_DIR/log_cleanup.sh" "${@:2}"
+        fi
+        ;;
+    security)
+        if [ "$OS_TYPE" = "Darwin" ]; then
+            bash "$MACOS_DIR/security_audit.sh" "${@:2}"
+        else
+            bash "$LINUX_DIR/security_audit.sh" "${@:2}"
+        fi
+        ;;
+    net-check)
+        if [ "$OS_TYPE" = "Darwin" ]; then
+            bash "$MACOS_DIR/network_audit.sh" "${@:2}" 2>/dev/null || echo "Module not found"
+        else
+            bash "$LINUX_DIR/network_audit.sh" "${@:2}"
+        fi
+        ;;
+    --help|-h|help|"")
+        show_help
+        ;;
+    *)
+        echo "Error: Unknown command '$1'"
+        echo "Run 'sat --help' for usage."
+        exit 1
+        ;;
+esac

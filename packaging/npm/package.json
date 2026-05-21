@@ -12,11 +12,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/sysadmin-toolkit.git"
+    "url": "https://github.com/MELS-010101/sysadmin-toolkit.git"
   },
   "keywords": ["sysadmin", "devops", "automation", "bash", "linux", "macos"],
   "license": "MIT",
   "publishConfig": {
-    "@your-org:registry": "https://npm.pkg.github.com/"
+    "@MELS-010101:registry": "https://npm.pkg.github.com/"
   }
 }

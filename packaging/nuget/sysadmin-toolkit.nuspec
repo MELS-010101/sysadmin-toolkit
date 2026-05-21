@@ -5,14 +5,14 @@
     <version>1.0.0</version>
     <title>SysAdmin Toolkit - System Health Module</title>
     <authors>SysAdmin-Toolkit Contributors</authors>
-    <owners>your-org</owners>
+    <owners>MELS-010101</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/MELS-010101/sysadmin-toolkit</projectUrl>
     <description>Cross-platform CLI automation toolkit. Includes Windows PowerShell module for System Health Monitoring (Disk, CPU, RAM, Services, Processes).</description>
     <releaseNotes>Initial release with System Health Module.</releaseNotes>
     <tags>sysadmin devops powershell automation monitoring windows</tags>
-    <repository type="git" url="https://github.com/your-org/sysadmin-toolkit.git" />
+    <repository type="git" url="https://github.com/MELS-010101/sysadmin-toolkit.git" />
   </metadata>
   <files>
     <file src="windows\System-Health.ps1" target="content\tools" />

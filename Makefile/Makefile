@@ -26,3 +26,9 @@ release: lint test
 
 clean:
 	@rm -rf dist/ coverage/ .pytest_cache/ node_modules/
+	
+test:
+	@echo "🧪 Running Bash tests..."
+	@bats tests/bash/test_system_health.bats tests/bash/test_log_cleanup.bats
+	@echo "🧪 Running PowerShell tests..."
+	@pwsh -Command "Invoke-Pester tests/powershell -PassThru"

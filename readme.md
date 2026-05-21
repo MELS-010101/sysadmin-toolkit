@@ -22,7 +22,6 @@ Production-ready CLI toolkit для автоматизации рутинных 
 ### Быстрый старт
 
 git clone https://github.com/MELS-010101/sysadmin-toolkit.git
-
 cd sysadmin-toolkit
 chmod +x src/linux/*.sh src/macos/*.sh lib/*.sh
 make install
@@ -93,7 +92,7 @@ MIT License
 
 ## 👥 Авторы
 
-Lead DevOps: @MELS-010101
+Lead DevOps: @your-username
 
 Made with ❤️ by SysAdmins for SysAdmins
   

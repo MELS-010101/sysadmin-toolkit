@@ -4,6 +4,17 @@
 # OS: Linux (Ubuntu/Debian/RHEL)
 # Style: Google Bash Style Guide + ShellDoc
 # ==============================================================================
+# Подключение библиотек
+readonly TOOLKIT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "${TOOLKIT_ROOT}/lib/logging.sh"
+source "${TOOLKIT_ROOT}/lib/config.sh"
+
+# Загрузка конфига (если есть)
+load_config "~/.config/sat/config.conf" 2>/dev/null || true
+
+# Использование в коде:
+# log "INFO" "Starting system health check..."
+# log "WARN" "High CPU load detected: ${load_avg}"
 set -euo pipefail
 
 readonly VERSION="1.0.0"

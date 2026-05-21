@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 readonly VERSION="1.0.0"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -1,0 +1,22 @@
+﻿#!/bin/bash
+# SysAdmin-Toolkit Main Entrypoint
+VERSION="1.1.2"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+LINUX_DIR="$ROOT_DIR/src/linux"
+MACOS_DIR="$ROOT_DIR/src/macos"
+OS_TYPE="$(uname)"
+
+case "${1:-}" in
+    health)
+        if [ "$OS_TYPE" = "Darwin" ]; then bash "$MACOS_DIR/system_health.sh" "${@:2}"
+        else bash "$LINUX_DIR/system_health.sh" "${@:2}"; fi ;;
+    log-clean)
+        if [ "$OS_TYPE" = "Darwin" ]; then bash "$MACOS_DIR/log_cleanup.sh" "${@:2}"
+        else bash "$LINUX_DIR/log_cleanup.sh" "${@:2}"; fi ;;
+    security)
+        if [ "$OS_TYPE" = "Darwin" ]; then bash "$MACOS_DIR/security_audit.sh" "${@:2}"
+        else bash "$LINUX_DIR/security_audit.sh" "${@:2}"; fi ;;
+    --help|-h|help|"") echo "Usage: sat <command>"; exit 0 ;;
+    *) echo "Unknown: $1"; exit 1 ;;
+esac

@@ -15,7 +15,7 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@MELS-010101'
       - run: npm publish
-        working-directory: packaging/npm
+        working-directory:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

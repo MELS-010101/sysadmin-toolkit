@@ -1,18 +1,24 @@
 {
   "name": "sysadmin-toolkit",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Cross-platform CLI automation toolkit",
+  "main": "bin/sat",
   "bin": {
-    "sat": "../../bin/sat"
+    "sat": "./bin/sat"
   },
-  "files": [
-    "../../bin",
-    "../../src",
-    "../../lib"
-  ],
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/MELS-010101/sysadmin-toolkit.git"
   },
-  "license": "MIT"
+  "keywords": ["sysadmin", "devops", "cli", "automation"],
+  "author": "MELS-010101",
+  "license": "MIT",
+  "files": [
+    "bin/**",
+    "src/**",
+    "lib/**"
+  ]
 }

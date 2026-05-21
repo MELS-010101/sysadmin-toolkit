@@ -1,0 +1,33 @@
+﻿name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm publish
+        working-directory: packaging/npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-nuget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - run: |
+          mkdir -p dist
+          dotnet pack sysadmin-toolkit.nuspec -c Release -o dist/
+        working-directory: packaging/nuget
+      - run: dotnet nuget push dist/*.nupkg --source "https://nuget.pkg.github.com" --api-key ${{ secrets.GITHUB_TOKEN }}
+        working-directory: packaging/nuget

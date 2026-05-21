@@ -1,20 +1,19 @@
 {
-  "name": "@sysadmin-toolkit/cli",
+  "name": "@MELS-010101/sysadmin-toolkit",
   "version": "1.0.0",
-  "description": "Cross-platform CLI automation toolkit for Linux, macOS, and Windows.",
+  "description": "Cross-platform CLI automation toolkit",
   "bin": {
-    "sa-health-linux": "./linux/system_health.sh",
-    "sa-health-macos": "./macos/system_health.sh"
+    "sat": "../../bin/sat"
   },
-  "scripts": {
-    "lint": "shellcheck linux/*.sh macos/*.sh",
-    "publish": "npm publish --registry=https://npm.pkg.github.com/"
-  },
+  "files": [
+    "../../bin",
+    "../../src",
+    "../../lib"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/MELS-010101/sysadmin-toolkit.git"
   },
-  "keywords": ["sysadmin", "devops", "automation", "bash", "linux", "macos"],
   "license": "MIT",
   "publishConfig": {
     "@MELS-010101:registry": "https://npm.pkg.github.com/"

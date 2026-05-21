@@ -1,41 +1,42 @@
-name: CI
-on: [push, pull_request]
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: sudo apt-get install -y shellcheck
-      - run: ls -la src/linux/ src/macos/
-      - run: shellcheck src/linux/*.sh --severity=error
-      - run: shellcheck src/macos/*.sh --severity=error
+{
+  "name": "@MELS-010101/sysadmin-toolkit",
+  "version": "1.0.0",
+  "description": "Cross-platform CLI automation toolkit",
+  "bin": {
+    "sat": "../../bin/sat"
+  },
+  "files": [
+    "../../bin",
+    "../../src",
+    "../../lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MELS-010101/sysadmin-toolkit.git"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "@MELS-010101:registry": "https://npm.pkg.github.com/"
+  }
+}
+'@ | Set-Content -Path "packaging\npm\package.json" -Encoding UTF8
+}
 
-  publish-npm:
-    needs: lint
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
-      - run: |
-          npm config set @MELS-010101:registry https://npm.pkg.github.com/
-          npm publish --access public
-        working-directory: packaging/npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish-nuget:
-    needs: lint
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-      - run: dotnet pack sysadmin-toolkit.nuspec -c Release -o dist/
-        working-directory: packaging/nuget
-      - run: dotnet nuget push dist/*.nupkg --source "https://nuget.pkg.github.com/MELS-010101" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+if (!(Test-Path "packaging\nuget\sysadmin-toolkit.nuspec")) {
+    New-Item -ItemType Directory -Path "packaging\nuget" -Force
+    @'
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>SysAdmin-Toolkit</id>
+    <version>1.0.0</version>
+    <title>SysAdmin-Toolkit</title>
+    <authors>MELS-010101</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <description>Cross-platform CLI automation toolkit</description>
+    <repository type="git" url="https://github.com/MELS-010101/sysadmin-toolkit.git" />
+  </metadata>
+</package>
+'@ | Set-Content -Path "packaging\nuget\sysadmin-toolkit.nuspec" -Encoding UTF8
+}

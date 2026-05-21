@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
+          scope: '@MELS-010101'
       - run: npm publish
         working-directory: packaging/npm
         env:
@@ -29,5 +30,5 @@ jobs:
           mkdir -p dist
           dotnet pack sysadmin-toolkit.nuspec -c Release -o dist/
         working-directory: packaging/nuget
-      - run: dotnet nuget push dist/*.nupkg --source "https://nuget.pkg.github.com" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      - run: dotnet nuget push dist/*.nupkg --source "https://nuget.pkg.github.com/MELS-010101" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
         working-directory: packaging/nuget

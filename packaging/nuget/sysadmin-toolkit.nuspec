@@ -1,14 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>sysadmin-toolkit</id>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <title>SysAdmin Toolkit</title>
     <authors>MELS-010101</authors>
-    <description>Cross-platform CLI automation toolkit</description>
+    <description>Cross-platform CLI automation toolkit for system administrators.</description>
     <repository type="git" url="https://github.com/MELS-010101/sysadmin-toolkit.git" />
+    <license type="expression">MIT</license>
   </metadata>
   <files>
-    <file src="..\..\**" target="content" exclude="**\*.git**;**\node_modules**;**\obj**" />
+    <file src="..\..\**" target="content" exclude="**\*.git**;**\node_modules**;**\obj**;**\bin" />
   </files>
 </package>

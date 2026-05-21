@@ -1,27 +1,15 @@
 {
-  "name": "@MELS-010101/sysadmin-toolkit",
-  "version": "1.0.5",
+  "name": "sysadmin-toolkit-mels",
+  "version": "1.0.6",
   "description": "Cross-platform CLI automation toolkit",
   "main": "bin/sat",
   "bin": {
     "sat": "./bin/sat"
   },
-  "scripts": {
-    "test": "echo \"No tests specified\""
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/MELS-010101/sysadmin-toolkit.git"
   },
-  "keywords": ["sysadmin", "devops", "cli", "automation"],
   "author": "MELS-010101",
-  "license": "MIT",
-  "files": [
-    "bin/**",
-    "src/**",
-    "lib/**"
-  ],
-  "publishConfig": {
-    "@MELS-010101:registry": "https://npm.pkg.github.com/"
-  }
+  "license": "MIT"
 }

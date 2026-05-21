@@ -1,8 +1,5 @@
-<< 'WORKFLOW_EOF'
 name: CI
-
 on: [push, pull_request]
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -12,4 +9,3 @@ jobs:
       - run: ls -la src/linux/ src/macos/
       - run: shellcheck src/linux/*.sh --severity=error
       - run: shellcheck src/macos/*.sh --severity=error
-WORKFLOW_EOF

@@ -1,3 +1,4 @@
+﻿#!/usr/bin/env node
 const { spawn } = require('child_process');
 const path = require('path');
 const os = require('os');
@@ -13,7 +14,7 @@ const args = process.argv.slice(2);
 const cmd = args[0];
 
 if (!cmd || cmd === '--help') {
-    console.log('SysAdmin-Toolkit v3.0.2');
+    console.log('SysAdmin-Toolkit v3.0.3');
     console.log('Usage: sat <command>');
     console.log('Commands: procs, find, health, ssl, docker, backup, update');
     process.exit(0);

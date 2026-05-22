@@ -1,71 +1,24 @@
-#!/bin/bash
-# SysAdmin-Toolkit Main Entrypoint
-# Usage: sat <command> [options]
+@'
+@echo off
+setlocal enabledelayedexpansion
 
-set -e
+REM Get script directory
+set "SCRIPT_DIR=%~dp0"
+set "ROOT_DIR=%SCRIPT_DIR:~0,-1%"
 
-VERSION="1.1.2"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-LINUX_DIR="$ROOT_DIR/src/linux"
-MACOS_DIR="$ROOT_DIR/src/macos"
+REM Check if WSL is available
+where wsl >nul 2>nul
+if %errorlevel% equ 0 (
+    wsl bash "%ROOT_DIR%/bin/sat" %*
+    exit /b %errorlevel%
+)
 
-OS_TYPE="$(uname)"
+REM Check if Git Bash is available
+if exist "C:\Program Files\Git\bin\bash.exe" (
+    "C:\Program Files\Git\bin\bash.exe" "%ROOT_DIR%/bin/sat" %*
+    exit /b %errorlevel%
+)
 
-show_help() {
-    cat <<EOF
-SysAdmin-Toolkit v${VERSION}
-Usage: sat <command> [options]
-
-Available commands:
-  health      Check system health (CPU, RAM, Disk, Services)
-  log-clean   Rotate & archive old logs [--dir DIR] [--days N]
-  security    Run security audit (passwords, SSH, firewall, ports)
-  net-check   Network audit & open port scan
-  --help      Show this help message
-
-Examples:
-  sat health
-  sat log-clean --dir /var/log --days 30
-  sat security
-EOF
-}
-
-case "${1:-}" in
-    health)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/system_health.sh" "${@:2}"
-        else
-            bash "$LINUX_DIR/system_health.sh" "${@:2}"
-        fi
-        ;;
-    log-clean)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/log_cleanup.sh" "${@:2}"
-        else
-            bash "$LINUX_DIR/log_cleanup.sh" "${@:2}"
-        fi
-        ;;
-    security)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/security_audit.sh" "${@:2}"
-        else
-            bash "$LINUX_DIR/security_audit.sh" "${@:2}"
-        fi
-        ;;
-    net-check)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/network_audit.sh" "${@:2}" 2>/dev/null || echo "Module not found"
-        else
-            bash "$LINUX_DIR/network_audit.sh" "${@:2}"
-        fi
-        ;;
-    --help|-h|help|"")
-        show_help
-        ;;
-    *)
-        echo "Error: Unknown command '$1'"
-        echo "Run 'sat --help' for usage."
-        exit 1
-        ;;
-esac
+echo Error: Neither WSL nor Git Bash found. Please install one of them.
+echo For Windows subsystem, install WSL: https://aka.ms/wsl
+echo Or install Git for Windows: https://git-scm.com/download/win

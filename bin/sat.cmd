@@ -1,2 +1,2 @@
 @echo off
-"C:\Program Files\Git\bin\bash.exe" "%~dp0sat" %*
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0sat.ps1" %*

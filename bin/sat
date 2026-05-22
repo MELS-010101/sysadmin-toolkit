@@ -1,125 +1,32 @@
-﻿# SysAdmin-Toolkit Main Entrypoint
-VERSION="2.1.3"
+﻿#!/usr/bin/env bash
+# SysAdmin-Toolkit - Linux/macOS Entry Point
+VERSION="2.2.1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LINUX_DIR="$ROOT_DIR/src/linux"
 WINDOWS_DIR="$ROOT_DIR/src/windows"
-MACOS_DIR="$ROOT_DIR/src/macos"
-
-OS_TYPE="$(uname)"
-SAT_FORMAT="text"
-INTERACTIVE_MODE="false"
-
-for arg in "$@"; do
-    case "$arg" in
-        -i|--interactive) INTERACTIVE_MODE="true" ;;
-        --format) SAT_FORMAT="$2" ;;
-    esac
-done
-
-export SAT_FORMAT
-
-# Determine which directory to use
-if [[ "$OS_TYPE" == MINGW* ]] || [[ "$OS_TYPE" == MSYS* ]] || [[ "$OS_TYPE" == CYGWIN* ]]; then
-    MODULE_DIR="$WINDOWS_DIR"
-    USE_POWERSHELL="true"
-elif [ "$OS_TYPE" = "Darwin" ]; then
-    MODULE_DIR="$MACOS_DIR"
-    USE_POWERSHELL="false"
-else
-    MODULE_DIR="$LINUX_DIR"
-    USE_POWERSHELL="false"
-fi
-
-if [ "$INTERACTIVE_MODE" = "true" ]; then
-    while true; do
-        echo "╔════════════════════════════════════════════════════════╗"
-        echo "║           SysAdmin-Toolkit | Interactive Mode          ║"
-        echo "╚════════════════════════════════════════════════════════╝"
-        echo ""
-        echo " 1) System Health"
-        echo " 2) Security Audit"
-        echo " 3) Network Check"
-        echo " 4) Log Cleanup"
-        echo " 5) Backup"
-        echo " 6) Docker Info"
-        echo " 7) SSL Check"
-        echo " 8) Update Toolkit"
-        echo " 9) Process Manager"
-        echo "10) File Finder"
-        echo "11) Quit"
-        echo ""
-        
-        read -p "Enter choice [1-11]: " choice
-        
-        case $choice in
-            1) bash "$LINUX_DIR/system_health.sh" ;;
-            2) bash "$LINUX_DIR/security_audit.sh" ;;
-            3) bash "$LINUX_DIR/net_audit.sh" ;;
-            4) bash "$LINUX_DIR/log_cleanup.sh" ;;
-            5) bash "$LINUX_DIR/backup.sh" ;;
-            6) bash "$LINUX_DIR/docker.sh" ;;
-            7) bash "$LINUX_DIR/ssl.sh" ;;
-            8) bash "$LINUX_DIR/update.sh" ;;
-            9) 
-                if [ "$USE_POWERSHELL" = "true" ]; then
-                    pwsh -File "$WINDOWS_DIR/process_manager.ps1"
-                else
-                    bash "$LINUX_DIR/process_manager.sh"
-                fi
-                ;;
-           10)
-                if [ "$USE_POWERSHELL" = "true" ]; then
-                    pwsh -File "$WINDOWS_DIR/file_finder.ps1"
-                else
-                    bash "$LINUX_DIR/file_finder.sh"
-                fi
-                ;;
-           11) echo "Exiting..."; exit 0 ;;
-            *) echo "Invalid option." ;;
-        esac
-        
-        if [ "$choice" != "11" ]; then
-            echo ""
-            read -p "Press Enter to return to menu..."
-            echo ""
-        fi
-    done
-fi
 
 CMD="${1}"
 case "$CMD" in
-    health)      bash "$LINUX_DIR/system_health.sh" "${@:2}" ;;
-    security)    bash "$LINUX_DIR/security_audit.sh" "${@:2}" ;;
-    net-check)   bash "$LINUX_DIR/net_audit.sh" "${@:2}" ;;
-    log-clean)   bash "$LINUX_DIR/log_cleanup.sh" "${@:2}" ;;
-    backup)      bash "$LINUX_DIR/backup.sh" "${@:2}" ;;
-    update)      bash "$LINUX_DIR/update.sh" "${@:2}" ;;
-    docker)      bash "$LINUX_DIR/docker.sh" "${@:2}" ;;
-    ssl)         bash "$LINUX_DIR/ssl.sh" "${@:2}" ;;
-    procs)
-        if [ "$USE_POWERSHELL" = "true" ]; then
-            pwsh -File "$WINDOWS_DIR/process_manager.ps1" "${@:2}"
-        else
-            bash "$LINUX_DIR/process_manager.sh" "${@:2}"
-        fi
-        ;;
-    find)
-        if [ "$USE_POWERSHELL" = "true" ]; then
-            pwsh -File "$WINDOWS_DIR/file_finder.ps1" "${@:2}"
-        else
-            bash "$LINUX_DIR/file_finder.sh" "${@:2}"
-        fi
-        ;;
+    health)    bash "$LINUX_DIR/system_health.sh" "${@:2}" ;;
+    security)  bash "$LINUX_DIR/security_audit.sh" "${@:2}" ;;
+    net-check) bash "$LINUX_DIR/net_audit.sh" "${@:2}" ;;
+    log-clean) bash "$LINUX_DIR/log_cleanup.sh" "${@:2}" ;;
+    backup)    bash "$LINUX_DIR/backup.sh" "${@:2}" ;;
+    update)    bash "$LINUX_DIR/update.sh" "${@:2}" ;;
+    docker)    bash "$LINUX_DIR/docker.sh" "${@:2}" ;;
+    ssl)       bash "$LINUX_DIR/ssl.sh" "${@:2}" ;;
+    procs)     bash "$LINUX_DIR/process_manager.sh" "${@:2}" ;;
+    find)      bash "$LINUX_DIR/file_finder.sh" "${@:2}" ;;
     --help|-h|help|"")
         echo "SysAdmin-Toolkit v${VERSION}"
-        echo "Usage: sat <command> [options]"
-        echo ""
+        echo "Usage: sat <command>"
         echo "Commands: health, security, net-check, log-clean, backup, update, docker, ssl, procs, find"
-        echo "Options: -i (interactive), --format json"
         ;;
     *)
-        echo "Error: Unknown command '$CMD'"
+        [ -n "$CMD" ] && echo "Error: Unknown command '$CMD'"
+        echo "SysAdmin-Toolkit v${VERSION}"
+        echo "Usage: sat <command>"
         echo "Run 'sat --help' for usage."
         ;;
 esac

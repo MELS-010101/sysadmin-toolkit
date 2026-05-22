@@ -2,11 +2,15 @@
 
 set -e
 
-VERSION="1.9.6"
+VERSION="1.9.7"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LINUX_DIR="$ROOT_DIR/src/linux"
 MACOS_DIR="$ROOT_DIR/src/macos"
+
+# Global defaults
+SAT_FORMAT="text"
+SAT_CONFIG=""
 
 OS_TYPE="$(uname)"
 
@@ -15,73 +19,91 @@ show_help() {
 SysAdmin-Toolkit v${VERSION}
 Usage: sat <command> [options]
 
+Global Options:
+  --format <json|text>  Output format (default: text)
+  --config <file>       Path to custom config file
+
 Available commands:
-  health      Check system health (CPU, RAM, Disk, Services)
-  log-clean   Rotate & archive old logs [--dir DIR] [--days N]
-  security    Run security audit (passwords, SSH, firewall, ports)
-  net-check   Network audit & open port scan
-  backup      Backup directories to tar.gz
-  update      Update toolkit via npm
-  docker      List Docker containers & disk usage
-  ssl         Check SSL certificate expiry
-  --help      Show this help message
+  health      Check system health
+  security    Run security audit
+  net-check   Network audit
+  log-clean   Clean old logs
+  backup      Backup directories
+  update      Update toolkit
+  docker      Docker info
+  ssl         Check SSL
+  --help      Show this help
 
 Examples:
-  sat health
-  sat log-clean --dir /var/log --days 30
-  sat security
+  sat health --format json
   sat ssl google.com
-  sat backup /path/to/dir
-  sat docker
+  sat --config my.conf health
 EOF
 }
 
-case "${1:-}" in
+# Parse global flags first
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --format)
+            SAT_FORMAT="$2"
+            shift 2
+            ;;
+        --config)
+            SAT_CONFIG="$2"
+            shift 2
+            ;;
+        *)
+            ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Set the command
+CMD="${ARGS[0]}"
+
+case "$CMD" in
     health)
+        export SAT_FORMAT SAT_CONFIG
         if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/system_health.sh" "${@:2}"
+            bash "$MACOS_DIR/system_health.sh" "${ARGS[@]:1}"
         else
-            bash "$LINUX_DIR/system_health.sh" "${@:2}"
+            bash "$LINUX_DIR/system_health.sh" "${ARGS[@]:1}"
         fi
         ;;
     log-clean)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/log_cleanup.sh" "${@:2}"
-        else
-            bash "$LINUX_DIR/log_cleanup.sh" "${@:2}"
-        fi
+        export SAT_FORMAT SAT_CONFIG
+        bash "$LINUX_DIR/log_cleanup.sh" "${ARGS[@]:1}"
         ;;
     security)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/security_audit.sh" "${@:2}"
-        else
-            bash "$LINUX_DIR/security_audit.sh" "${@:2}"
-        fi
+        export SAT_FORMAT SAT_CONFIG
+        bash "$LINUX_DIR/security_audit.sh" "${ARGS[@]:1}"
         ;;
     net-check)
-        if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/net_audit.sh" "${@:2}" 2>/dev/null || echo "Module not found"
-        else
-            bash "$LINUX_DIR/net_audit.sh" "${@:2}"
-        fi
+        export SAT_FORMAT SAT_CONFIG
+        bash "$LINUX_DIR/net_audit.sh" "${ARGS[@]:1}"
         ;;
     backup)
-        bash "$LINUX_DIR/backup.sh" "$@"
+        export SAT_FORMAT SAT_CONFIG
+        bash "$LINUX_DIR/backup.sh" "${ARGS[@]:1}"
         ;;
     update)
-        bash "$LINUX_DIR/update.sh" "$@"
+        bash "$LINUX_DIR/update.sh" "${ARGS[@]:1}"
         ;;
     docker)
-        bash "$LINUX_DIR/docker.sh" "$@"
+        export SAT_FORMAT SAT_CONFIG
+        bash "$LINUX_DIR/docker.sh" "${ARGS[@]:1}"
         ;;
     ssl)
-        bash "$LINUX_DIR/ssl.sh" "$@"
+        export SAT_FORMAT SAT_CONFIG
+        bash "$LINUX_DIR/ssl.sh" "${ARGS[@]:1}"
         ;;
     --help|-h|help|"")
         show_help
         ;;
     *)
-        echo "Error: Unknown command '$1'"
+        echo "Error: Unknown command '$CMD'"
         echo "Run 'sat --help' for usage."
         exit 1
         ;;

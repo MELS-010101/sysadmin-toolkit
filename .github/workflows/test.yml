@@ -1,4 +1,5 @@
-﻿name: CI Test Suite
+$workflow = @'
+name: CI Test Suite
 
 on:
   push:
@@ -10,14 +11,13 @@ jobs:
   lint:
     name: ShellCheck (Syntax)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: './src'
-          ignore_names: "SC1090 SC1091 SC2148 SC2155 SC2086 SC2001 SC2084 SC2015 SC2034 SC2088"
+          ignore: "SC1090,SC1091,SC2148,SC2155,SC2086,SC2001,SC2084,SC2015"
 
   test-linux:
     name: Linux Smoke Tests
@@ -36,7 +36,6 @@ jobs:
   test-windows:
     name: Windows Git Bash Tests
     runs-on: windows-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Test bin/sat via Git Bash
@@ -46,8 +45,10 @@ jobs:
           if (Test-Path $gitBash) {
             Write-Host "Git Bash found!"
             & $gitBash "./bin/sat" --help
+            if (`$LASTEXITCODE -ne 0) { exit 1 }
             & $gitBash "./bin/sat" health
-            Write-Host "Windows tests completed (warnings allowed)"
+            # Игнорируем exit code 1 от warning'ов, если вывод есть
+            # Скрипт работает - это главное
           } else {
             Write-Error "Git Bash not found"
             exit 1

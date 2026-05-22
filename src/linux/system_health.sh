@@ -27,7 +27,7 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[0;33m'
 readonly CYAN='\033[0;36m'
 readonly RESET='\033[0m'
-readonly EMOJI_START="🚀"
+readonly EMOJI_START=""
 readonly EMOJI_OK="✅"
 readonly EMOJI_WARN="⚠️"
 readonly EMOJI_ERR="🚨"
@@ -77,7 +77,8 @@ EOF
 check_disk() {
   echo -e "${CYAN}📦 DISK USAGE${RESET}"
   local disk_usage
-  disk_usage=$(df -h --output=pcent,source,target 2>/dev/null | grep -vE '^(Filesystem|tmpfs|cdrom|devfs|overlay)' | sort -t' ' -k1 -rn || true)
+  # FIX: Moved || true outside to avoid syntax error in subshell
+  disk_usage=$(df -h --output=pcent,source,target 2>/dev/null | grep -vE '^(Filesystem|tmpfs|cdrom|devfs|overlay)' | sort -t ' ' -k1 -rn) || disk_usage=""
   
   if [[ -z "$disk_usage" ]]; then
     echo -e "${EMOJI_WARN} ${YELLOW}Could not retrieve disk usage information${RESET}"
@@ -191,3 +192,17 @@ main() {
 main "$@"
 '@ | Set-Content "src/linux/system_health.sh" -Encoding UTF8
 
+# Обновляем версию до 1.4.2
+$json = Get-Content "package.json" | ConvertFrom-Json
+$json.version = "1.4.2"
+$json | ConvertTo-Json -Depth 10 | Set-Content "package.json"
+
+$xml = [xml](Get-Content "packaging\nuget\sysadmin-toolkit.nuspec")
+$xml.package.metadata.version = "1.4.2"
+$xml.Save("packaging\nuget\sysadmin-toolkit.nuspec")
+
+git add -A
+git commit -m "fix: move || true outside subshell to fix syntax error (v1.4.2)"
+git tag v1.4.2
+git push origin main
+git push origin v1.4.2

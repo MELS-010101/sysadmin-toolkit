@@ -161,3 +161,5 @@ main() {
   
   echo -e "${CYAN}✨ Completed at $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
 }
+
+main "$@"

@@ -1,8 +1,9 @@
-﻿# SysAdmin-Toolkit Main Entrypoint
+$content = @'
+# SysAdmin-Toolkit Main Entrypoint
 
 set -e
 
-VERSION="1.9.7"
+VERSION="2.0.1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LINUX_DIR="$ROOT_DIR/src/linux"
@@ -11,8 +12,16 @@ MACOS_DIR="$ROOT_DIR/src/macos"
 # Global defaults
 SAT_FORMAT="text"
 SAT_CONFIG=""
+INTERACTIVE_MODE=false
 
 OS_TYPE="$(uname)"
+
+# Colors
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
 
 show_help() {
     cat <<EOF
@@ -20,8 +29,9 @@ SysAdmin-Toolkit v${VERSION}
 Usage: sat <command> [options]
 
 Global Options:
-  --format <json|text>  Output format (default: text)
-  --config <file>       Path to custom config file
+  -i, --interactive   Run in interactive menu mode
+  --format <json|text> Output format (default: text)
+  --config <file>     Path to custom config file
 
 Available commands:
   health      Check system health
@@ -35,16 +45,76 @@ Available commands:
   --help      Show this help
 
 Examples:
+  sat -i
   sat health --format json
-  sat ssl google.com
-  sat --config my.conf health
 EOF
 }
 
-# Parse global flags first
+# --- Interactive Menu Function ---
+interactive_menu() {
+    echo -e "${CYAN}╔════════════════════════════════════════════════════════╗${RESET}"
+    echo -e "${CYAN}║           SysAdmin-Toolkit | Interactive Mode          ║${RESET}"
+    echo -e "${CYAN}╚════════════════════════════════════════════════════════╝${RESET}"
+    echo ""
+
+    PS3="Select a module to run (or type number): "
+    
+    select opt in "System Health" "Security Audit" "Network Check" "Log Cleanup" "Backup" "Docker Info" "SSL Check" "Update Toolkit" "Quit"; do
+        case $opt in
+            "System Health")
+                bash "$LINUX_DIR/system_health.sh"
+                ;;
+            "Security Audit")
+                bash "$LINUX_DIR/security_audit.sh"
+                ;;
+            "Network Check")
+                bash "$LINUX_DIR/net_audit.sh"
+                ;;
+            "Log Cleanup")
+                bash "$LINUX_DIR/log_cleanup.sh"
+                ;;
+            "Backup")
+                bash "$LINUX_DIR/backup.sh"
+                ;;
+            "Docker Info")
+                bash "$LINUX_DIR/docker.sh"
+                ;;
+            "SSL Check")
+                bash "$LINUX_DIR/ssl.sh"
+                ;;
+            "Update Toolkit")
+                bash "$LINUX_DIR/update.sh"
+                ;;
+            "Quit")
+                echo -e "${GREEN}Exiting...${RESET}"
+                break
+                ;;
+            *) 
+                echo -e "${RED}Invalid option. Try again.${RESET}"
+                ;;
+        esac
+        
+        # If not quit, ask to press enter to continue
+        if [ "$opt" != "Quit" ] && [ -n "$opt" ]; then
+            echo -e "\n${YELLOW}Press Enter to return to menu...${RESET}"
+            read
+            clear
+            echo -e "${CYAN}╔════════════════════════════════════════════════════════╗${RESET}"
+            echo -e "${CYAN}║           SysAdmin-Toolkit | Interactive Mode          ║${RESET}"
+            echo -e "${CYAN}╚════════════════════════════════════════════════════════╝${RESET}"
+            echo ""
+        fi
+    done
+}
+
+# --- Argument Parsing ---
 ARGS=()
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -i|--interactive)
+            INTERACTIVE_MODE=true
+            shift
+            ;;
         --format)
             SAT_FORMAT="$2"
             shift 2
@@ -60,9 +130,17 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Set the command
 CMD="${ARGS[0]}"
 
+# --- Execution ---
+
+# 1. Interactive Mode Check
+if [ "$INTERACTIVE_MODE" = true ]; then
+    interactive_menu
+    exit 0
+fi
+
+# 2. Standard Command Routing
 case "$CMD" in
     health)
         export SAT_FORMAT SAT_CONFIG
@@ -108,3 +186,6 @@ case "$CMD" in
         exit 1
         ;;
 esac
+
+
+

@@ -1,9 +1,9 @@
 # Get the directory where this script is located
-$ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$RootDir = Split-Path -Parent $ScriptPath
+$ScriptDir = $PSScriptRoot
+$RootDir = Split-Path -Parent $ScriptDir
 
 # Path to the bash script
-$BashScript = Join-Path $ScriptPath "sat"
+$BashScript = Join-Path $ScriptDir "sat"
 
 # Check for WSL
 if (Get-Command wsl -ErrorAction SilentlyContinue) {

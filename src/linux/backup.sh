@@ -1,4 +1,3 @@
-﻿#!/usr/bin/env bash
 # Module: Backup Configs
 
 VERSION="1.0.0"

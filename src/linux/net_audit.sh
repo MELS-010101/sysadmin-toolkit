@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Module: Network Audit
 
 TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

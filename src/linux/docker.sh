@@ -1,4 +1,3 @@
-﻿#!/usr/bin/env bash
 # Module: Docker Manager
 
 VERSION="1.0.0"

@@ -1,4 +1,3 @@
-﻿#!/usr/bin/env bash
 # Module: SSL Checker
 
 VERSION="1.0.0"

@@ -1,4 +1,3 @@
-﻿#!/usr/bin/env bash
 # Module: Auto Update
 
 VERSION="1.0.0"

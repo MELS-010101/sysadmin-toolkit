@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Module: Security Audit
 
 TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

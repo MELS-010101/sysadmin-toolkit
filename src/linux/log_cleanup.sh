@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Module: Log Cleanup
 
 TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

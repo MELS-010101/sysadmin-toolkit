@@ -1,4 +1,5 @@
-﻿# Module: System Health Monitor
+#!/usr/bin/env bash
+# Module: System Health Monitor
 
 TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "${TOOLKIT_ROOT}/lib/logging.sh" 2>/dev/null || true

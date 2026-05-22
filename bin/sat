@@ -1,55 +1,88 @@
-﻿# Module: System Health Monitor
+﻿# SysAdmin-Toolkit Main Entrypoint
+# Fixed: removed set -e, simplified args, robust interactive mode
 
-TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-source "${TOOLKIT_ROOT}/lib/utils.sh" 2>/dev/null || true
+VERSION="2.0.6"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+LINUX_DIR="$ROOT_DIR/src/linux"
+MACOS_DIR="$ROOT_DIR/src/macos"
+OS_TYPE="$(uname)"
 
-VERSION="1.0.0"
+SAT_FORMAT="text"
+INTERACTIVE_MODE="false"
 
-# Main logic
-main() {
-    if [ "${SAT_FORMAT:-text}" = "json" ]; then
-        # JSON Output Mode
-        local load_avg disk_pct mem_pct
-        load_avg=$(cat /proc/loadavg 2>/dev/null | awk '{print $1}' || echo "N/A")
-        disk_pct=$(df / 2>/dev/null | grep / | awk '{print $5}' | tr -d '%' || echo "N/A")
-        mem_total=$(grep MemTotal /proc/meminfo 2>/dev/null | awk '{print $2}' || echo "0")
-        mem_avail=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}' || echo "0")
+# Простой парсинг флагов
+for arg in "$@"; do
+    case "$arg" in
+        -i|--interactive) INTERACTIVE_MODE="true" ;;
+        --format) SAT_FORMAT="$2" ;;
+    esac
+done
+
+# Экспортируем для модулей
+export SAT_FORMAT
+
+# === ИНТЕРАКТИВНЫЙ РЕЖИМ ===
+if [[ "$INTERACTIVE_MODE" == "true" ]]; then
+    while true; do
+        echo "╔════════════════════════════════════════════════════════╗"
+        echo "║           SysAdmin-Toolkit | Interactive Mode          ║"
+        echo "╚════════════════════════════════════════════════════════╝"
+        echo ""
+        echo " 1) System Health"
+        echo " 2) Security Audit"
+        echo " 3) Network Check"
+        echo " 4) Log Cleanup"
+        echo " 5) Backup"
+        echo " 6) Docker Info"
+        echo " 7) SSL Check"
+        echo " 8) Update Toolkit"
+        echo " 9) Quit"
+        echo ""
         
-        if [ "$mem_total" -gt 0 ] 2>/dev/null; then
-            mem_pct=$(( (mem_total - mem_avail) * 100 / mem_total ))
-        else
-            mem_pct="N/A"
+        read -p "Enter choice [1-9]: " choice
+        
+        case $choice in
+            1) bash "$LINUX_DIR/system_health.sh" ;;
+            2) bash "$LINUX_DIR/security_audit.sh" ;;
+            3) bash "$LINUX_DIR/net_audit.sh" ;;
+            4) bash "$LINUX_DIR/log_cleanup.sh" ;;
+            5) bash "$LINUX_DIR/backup.sh" ;;
+            6) bash "$LINUX_DIR/docker.sh" ;;
+            7) bash "$LINUX_DIR/ssl.sh" ;;
+            8) bash "$LINUX_DIR/update.sh" ;;
+            9) echo "Exiting..."; exit 0 ;;
+            *) echo "Invalid option." ;;
+        esac
+        
+        if [[ "$choice" != "9" ]]; then
+            echo ""
+            read -p "Press Enter to return to menu..."
+            echo ""
         fi
+    done
+fi
 
-        cat <<EOF
-{
-  "module": "system_health",
-  "version": "${VERSION}",
-  "load_avg": "${load_avg}",
-  "disk_usage_pct": "${disk_pct}",
-  "memory_usage_pct": "${mem_pct}"
-}
-EOF
-    else
-        # Text Output Mode
+# === СТАНДАРТНЫЙ РЕЖИМ ===
+CMD="${1}"
+case "$CMD" in
+    health)      bash "$LINUX_DIR/system_health.sh" "${@:2}" ;;
+    security)    bash "$LINUX_DIR/security_audit.sh" "${@:2}" ;;
+    net-check)   bash "$LINUX_DIR/net_audit.sh" "${@:2}" ;;
+    log-clean)   bash "$LINUX_DIR/log_cleanup.sh" "${@:2}" ;;
+    backup)      bash "$LINUX_DIR/backup.sh" "${@:2}" ;;
+    update)      bash "$LINUX_DIR/update.sh" "${@:2}" ;;
+    docker)      bash "$LINUX_DIR/docker.sh" "${@:2}" ;;
+    ssl)         bash "$LINUX_DIR/ssl.sh" "${@:2}" ;;
+    --help|-h|help|"")
+        echo "SysAdmin-Toolkit v${VERSION}"
+        echo "Usage: sat <command> [options]"
         echo ""
-        echo "  SysAdmin-Toolkit | System Health Module"
-        echo "  Version: ${VERSION}"
-        echo ""
-        
-        echo "Load Average: $(cat /proc/loadavg 2>/dev/null | awk '{print $1}' || echo 'N/A')"
-        echo "Disk Usage: $(df / 2>/dev/null | grep / | awk '{print $5}' || echo 'N/A')"
-        
-        local mem_total=$(grep MemTotal /proc/meminfo 2>/dev/null | awk '{print $2}')
-        local mem_avail=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
-        if [ -n "$mem_total" ] && [ "$mem_total" -gt 0 ]; then
-            local mem_pct=$(( (mem_total - mem_avail) * 100 / mem_total ))
-            echo "Memory Usage: ${mem_pct}%"
-        else
-            echo "Memory Usage: N/A"
-        fi
-        echo ""
-    fi
-}
-
-main "$@"
+        echo "Commands: health, security, net-check, log-clean, backup, update, docker, ssl"
+        echo "Options:  -i (interactive), --format json"
+        ;;
+    *)
+        echo "Error: Unknown command '$CMD'"
+        echo "Run 'sat --help' for usage."
+        ;;
+esac

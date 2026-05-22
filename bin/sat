@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # SysAdmin-Toolkit Main Entrypoint
 
 set -e
 
-VERSION="1.2.5"
+VERSION="1.8.3"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LINUX_DIR="$ROOT_DIR/src/linux"
@@ -21,12 +21,19 @@ Available commands:
   log-clean   Rotate & archive old logs [--dir DIR] [--days N]
   security    Run security audit (passwords, SSH, firewall, ports)
   net-check   Network audit & open port scan
+  backup      Backup directories to tar.gz
+  update      Update toolkit via npm
+  docker      List Docker containers & disk usage
+  ssl         Check SSL certificate expiry
   --help      Show this help message
 
 Examples:
   sat health
   sat log-clean --dir /var/log --days 30
   sat security
+  sat ssl google.com
+  sat backup /path/to/dir
+  sat docker
 EOF
 }
 
@@ -59,6 +66,18 @@ case "${1:-}" in
             bash "$LINUX_DIR/net_audit.sh" "${@:2}"
         fi
         ;;
+    backup)
+        bash "$LINUX_DIR/backup.sh" "$@"
+        ;;
+    update)
+        bash "$LINUX_DIR/update.sh" "$@"
+        ;;
+    docker)
+        bash "$LINUX_DIR/docker.sh" "$@"
+        ;;
+    ssl)
+        bash "$LINUX_DIR/ssl.sh" "$@"
+        ;;
     --help|-h|help|"")
         show_help
         ;;
@@ -68,4 +87,3 @@ case "${1:-}" in
         exit 1
         ;;
 esac
-

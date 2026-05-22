@@ -1,0 +1,8 @@
+﻿.git
+.github
+.vscode
+*.md
+!readme.md
+packaging/
+tests/
+.DS_Store

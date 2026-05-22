@@ -1,5 +1,4 @@
-﻿#!/usr/bin/env bash
-# SysAdmin-Toolkit - Linux/macOS Entry Point
+﻿# SysAdmin-Toolkit - Linux/macOS Entry Point
 VERSION="2.2.1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"

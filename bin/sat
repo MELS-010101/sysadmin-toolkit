@@ -3,111 +3,105 @@ $content = @'
 
 set -e
 
-VERSION="2.0.1"
+VERSION="2.0.4"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LINUX_DIR="$ROOT_DIR/src/linux"
 MACOS_DIR="$ROOT_DIR/src/macos"
 
-# Global defaults
 SAT_FORMAT="text"
 SAT_CONFIG=""
 INTERACTIVE_MODE=false
-
 OS_TYPE="$(uname)"
 
-# Colors
-CYAN='\033[0;36m'
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-RESET='\033[0m'
-
 show_help() {
-    cat <<EOF
-SysAdmin-Toolkit v${VERSION}
-Usage: sat <command> [options]
-
-Global Options:
-  -i, --interactive   Run in interactive menu mode
-  --format <json|text> Output format (default: text)
-  --config <file>     Path to custom config file
-
-Available commands:
-  health      Check system health
-  security    Run security audit
-  net-check   Network audit
-  log-clean   Clean old logs
-  backup      Backup directories
-  update      Update toolkit
-  docker      Docker info
-  ssl         Check SSL
-  --help      Show this help
-
-Examples:
-  sat -i
-  sat health --format json
-EOF
+    echo "SysAdmin-Toolkit v${VERSION}"
+    echo "Usage: sat <command> [options]"
+    echo ""
+    echo "Global Options:"
+    echo "  -i, --interactive   Run in interactive menu mode"
+    echo "  --format <json|text> Output format (default: text)"
+    echo "  --config <file>     Path to custom config file"
+    echo ""
+    echo "Available commands:"
+    echo "  health      Check system health"
+    echo "  security    Run security audit"
+    echo "  net-check   Network audit"
+    echo "  log-clean   Clean old logs"
+    echo "  backup      Backup directories"
+    echo "  update      Update toolkit"
+    echo "  docker      Docker info"
+    echo "  ssl         Check SSL"
+    echo "  --help      Show this help"
 }
 
-# --- Interactive Menu Function ---
 interactive_menu() {
-    echo -e "${CYAN}╔════════════════════════════════════════════════════════╗${RESET}"
-    echo -e "${CYAN}║           SysAdmin-Toolkit | Interactive Mode          ║${RESET}"
-    echo -e "${CYAN}╚════════════════════════════════════════════════════════╝${RESET}"
+    echo "╔════════════════════════════════════════════════════════╗"
+    echo "║           SysAdmin-Toolkit | Interactive Mode          ║"
+    echo "╚════════════════════════════════════════════════════════╝"
     echo ""
 
-    PS3="Select a module to run (or type number): "
-    
-    select opt in "System Health" "Security Audit" "Network Check" "Log Cleanup" "Backup" "Docker Info" "SSL Check" "Update Toolkit" "Quit"; do
-        case $opt in
-            "System Health")
+    while true; do
+        echo "Select a module to run:"
+        echo "  1) System Health"
+        echo "  2) Security Audit"
+        echo "  3) Network Check"
+        echo "  4) Log Cleanup"
+        echo "  5) Backup"
+        echo "  6) Docker Info"
+        echo "  7) SSL Check"
+        echo "  8) Update Toolkit"
+        echo "  9) Quit"
+        echo ""
+        
+        read -p "Enter choice [1-9]: " choice
+        
+        case $choice in
+            1)
                 bash "$LINUX_DIR/system_health.sh"
                 ;;
-            "Security Audit")
+            2)
                 bash "$LINUX_DIR/security_audit.sh"
                 ;;
-            "Network Check")
+            3)
                 bash "$LINUX_DIR/net_audit.sh"
                 ;;
-            "Log Cleanup")
+            4)
                 bash "$LINUX_DIR/log_cleanup.sh"
                 ;;
-            "Backup")
+            5)
                 bash "$LINUX_DIR/backup.sh"
                 ;;
-            "Docker Info")
+            6)
                 bash "$LINUX_DIR/docker.sh"
                 ;;
-            "SSL Check")
+            7)
                 bash "$LINUX_DIR/ssl.sh"
                 ;;
-            "Update Toolkit")
+            8)
                 bash "$LINUX_DIR/update.sh"
                 ;;
-            "Quit")
-                echo -e "${GREEN}Exiting...${RESET}"
+            9)
+                echo "Exiting..."
                 break
                 ;;
-            *) 
-                echo -e "${RED}Invalid option. Try again.${RESET}"
+            *)
+                echo "Invalid option. Try again."
                 ;;
         esac
         
-        # If not quit, ask to press enter to continue
-        if [ "$opt" != "Quit" ] && [ -n "$opt" ]; then
-            echo -e "\n${YELLOW}Press Enter to return to menu...${RESET}"
-            read
+        if [ "$choice" != "9" ]; then
+            echo ""
+            read -p "Press Enter to return to menu..."
             clear
-            echo -e "${CYAN}╔════════════════════════════════════════════════════════╗${RESET}"
-            echo -e "${CYAN}║           SysAdmin-Toolkit | Interactive Mode          ║${RESET}"
-            echo -e "${CYAN}╚════════════════════════════════════════════════════════╝${RESET}"
+            echo "╔════════════════════════════════════════════════════════╗"
+            echo "║           SysAdmin-Toolkit | Interactive Mode          ║"
+            echo "╚════════════════════════════════════════════════════════╝"
             echo ""
         fi
     done
 }
 
-# --- Argument Parsing ---
 ARGS=()
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -132,15 +126,11 @@ done
 
 CMD="${ARGS[0]}"
 
-# --- Execution ---
-
-# 1. Interactive Mode Check
 if [ "$INTERACTIVE_MODE" = true ]; then
     interactive_menu
     exit 0
 fi
 
-# 2. Standard Command Routing
 case "$CMD" in
     health)
         export SAT_FORMAT SAT_CONFIG
@@ -186,6 +176,17 @@ case "$CMD" in
         exit 1
         ;;
 esac
+'@
+
+Set-Content "bin/sat" -Value $content -Encoding UTF8 -NoNewline
+
+# Проверка синтаксиса
+bash -n "bin/sat"
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "✅ Синтаксис правильный!"
+} else {
+    Write-Host "❌ Ошибка в синтаксисе!"
+}
 
 
 

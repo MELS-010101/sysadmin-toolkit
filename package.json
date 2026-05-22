@@ -1,6 +1,6 @@
 {
     "name":  "@mels-010101/sysadmin-toolkit",
-    "version":  "2.2.3",
+    "version":  "2.2.4",
     "description":  "Cross-platform CLI automation toolkit",
     "main":  "bin/sat",
     "bin":  {

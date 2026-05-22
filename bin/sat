@@ -1,5 +1,4 @@
-﻿# SysAdmin-Toolkit Main Entrypoint
-
+﻿
 set -e
 
 VERSION="1.8.3"

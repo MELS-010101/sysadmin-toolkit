@@ -1,5 +1,5 @@
 ﻿# SysAdmin-Toolkit - Windows PowerShell Entry Point
-$VERSION = "2.2.1"
+$VERSION = "2.2.5"
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ROOT_DIR = Split-Path -Parent $SCRIPT_DIR
 $LINUX_DIR = Join-Path $ROOT_DIR "src\linux"
@@ -17,8 +17,8 @@ switch ($command) {
     "update" { & bash "$LINUX_DIR\update.sh" $cmdArgs }
     "docker" { & bash "$LINUX_DIR\docker.sh" $cmdArgs }
     "ssl" { & bash "$LINUX_DIR\ssl.sh" $cmdArgs }
-    "procs" { & powershell -File "$WINDOWS_DIR\process_manager.ps1" $cmdArgs }
-    "find" { & powershell -File "$WINDOWS_DIR\file_finder.ps1" $cmdArgs }
+    "procs" { & "$WINDOWS_DIR\process_manager.ps1" $cmdArgs }
+    "find" { & "$WINDOWS_DIR\file_finder.ps1" $cmdArgs }
     "--help" { 
         Write-Host "SysAdmin-Toolkit v$VERSION"
         Write-Host "Usage: sat <command>"

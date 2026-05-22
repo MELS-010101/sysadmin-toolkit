@@ -28,7 +28,12 @@ if [[ "$INTERACTIVE_MODE" == "true" ]]; then
         echo "╔════════════════════════════════════════════════════════╗"
         echo "║           SysAdmin-Toolkit | Interactive Mode          ║"
         echo "╚════════════════════════════════════════════════════════╝"
-        echo ""
+        echo     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;""
         echo " 1) System Health"
         echo " 2) Security Audit"
         echo " 3) Network Check"
@@ -38,7 +43,12 @@ if [[ "$INTERACTIVE_MODE" == "true" ]]; then
         echo " 7) SSL Check"
         echo " 8) Update Toolkit"
         echo " 9) Quit"
-        echo ""
+        echo     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;""
         
         read -p "Enter choice [1-9]: " choice
         
@@ -56,9 +66,19 @@ if [[ "$INTERACTIVE_MODE" == "true" ]]; then
         esac
         
         if [[ "$choice" != "9" ]]; then
-            echo ""
+            echo     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;""
             read -p "Press Enter to return to menu..."
-            echo ""
+            echo     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;""
         fi
     done
 fi
@@ -73,16 +93,96 @@ case "$CMD" in
     backup)      bash "$LINUX_DIR/backup.sh" "${@:2}" ;;
     update)      bash "$LINUX_DIR/update.sh" "${@:2}" ;;
     docker)      bash "$LINUX_DIR/docker.sh" "${@:2}" ;;
-    ssl)         bash "$LINUX_DIR/ssl.sh" "${@:2}" ;;
-    --help|-h|help|"")
+    ssl)         bash "$LINUX_DIR/ssl.sh" "${@:2}" ;;    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;
+    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;-    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;-    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;help|    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;-h|    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;help|    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;"")
         echo "SysAdmin-Toolkit v${VERSION}"
         echo "Usage: sat <command> [options]"
-        echo ""
+        echo     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;""
         echo "Commands: health, security, net-check, log-clean, backup, update, docker, ssl"
         echo "Options:  -i (interactive), --format json"
         ;;
     *)
         echo "Error: Unknown command '$CMD'"
-        echo "Run 'sat --help' for usage."
+        echo "Run 'sat    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;     procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;-    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;-    procs)
+        bash "$LINUX_DIR/process_manager.sh" "${@:2}"
+        ;;
+    find)
+        bash "$LINUX_DIR/file_finder.sh" "${@:2}"
+        ;;help' for usage."
         ;;
 esac

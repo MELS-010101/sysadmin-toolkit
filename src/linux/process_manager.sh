@@ -1,7 +1,5 @@
 ﻿# Module: Process Manager
-
 VERSION="1.0.0"
-
 action="${1:-list}"
 target="${2:-}"
 

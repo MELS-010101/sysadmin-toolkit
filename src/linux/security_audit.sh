@@ -12,16 +12,20 @@ RESET='\033[0m'
 
 check_users() {
   echo -e "${YELLOW}Checking users with UID 0 (root privileges)...${RESET}"
-  awk -F: '($3 == 0) {print "  User: " $1 " is root"}' /etc/passwd
+  if [ -f /etc/passwd ]; then
+    awk -F: '($3 == 0) {print "  User: " $1 " is root"}' /etc/passwd
+  else
+    echo "  /etc/passwd not found (Windows?)"
+  fi
   echo ""
 }
 
 check_ports() {
   echo -e "${YELLOW}Checking listening ports...${RESET}"
   if command -v ss >/dev/null 2>&1; then
-    ss -tulpn 2>/dev/null | head -20
+    ss -tulpn 2>/dev/null | head -20 || echo "  ss command failed"
   elif command -v netstat >/dev/null 2>&1; then
-    netstat -tulpn 2>/dev/null | head -20
+    netstat -tulpn 2>/dev/null | head -20 || echo "  netstat command failed"
   else
     echo "  ss or netstat command not found"
   fi
@@ -30,7 +34,11 @@ check_ports() {
 
 check_permissions() {
   echo -e "${YELLOW}Checking world-writable files in /etc (example)...${RESET}"
-  find /etc -perm -o+w -type f 2>/dev/null | head -10 || true
+  if [ -d /etc ]; then
+    find /etc -perm -o+w -type f 2>/dev/null | head -10 || true
+  else
+    echo "  /etc directory not found"
+  fi
   echo ""
 }
 

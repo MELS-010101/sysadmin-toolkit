@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # SysAdmin-Toolkit Main Entrypoint
 
 set -e
@@ -54,9 +54,9 @@ case "${1:-}" in
         ;;
     net-check)
         if [ "$OS_TYPE" = "Darwin" ]; then
-            bash "$MACOS_DIR/network_audit.sh" "${@:2}" 2>/dev/null || echo "Module not found"
+            bash "$MACOS_DIR/net_audit.sh" "${@:2}" 2>/dev/null || echo "Module not found"
         else
-            bash "$LINUX_DIR/network_audit.sh" "${@:2}"
+            bash "$LINUX_DIR/net_audit.sh" "${@:2}"
         fi
         ;;
     --help|-h|help|"")
@@ -68,3 +68,4 @@ case "${1:-}" in
         exit 1
         ;;
 esac
+

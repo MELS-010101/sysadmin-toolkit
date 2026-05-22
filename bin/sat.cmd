@@ -1,6 +1,6 @@
 @'
 @echo off
-setlocal enabledelayedexpansion
+"C:\Program Files\Git\bin\bash.exe" "%~dp0sat" %*
 
 REM Get script directory
 set "SCRIPT_DIR=%~dp0"

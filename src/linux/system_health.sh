@@ -1,18 +1,19 @@
-﻿#!/usr/bin/env bash
+﻿@'
+#!/usr/bin/env bash
 # ==============================================================================
 # Module: System Health Monitor
 # OS: Linux (Ubuntu/Debian/RHEL)
 # Style: Google Bash Style Guide + ShellDoc
 # ==============================================================================
-# РџРѕРґРєР»СЋС‡РµРЅРёРµ Р±РёР±Р»РёРѕС‚РµРє
+# Подключение библиотек
 readonly TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "${TOOLKIT_ROOT}/lib/logging.sh"
 source "${TOOLKIT_ROOT}/lib/config.sh"
 
-# Р—Р°РіСЂСѓР·РєР° РєРѕРЅС„РёРіР° (РµСЃР»Рё РµСЃС‚СЊ)
+# Загрузка конфига (если есть)
 load_config "~/.config/sat/config.conf" 2>/dev/null || true
 
-# РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РІ РєРѕРґРµ:
+# Использование в коде:
 # log "INFO" "Starting system health check..."
 # log "WARN" "High CPU load detected: ${load_avg}"
 set -euo pipefail
@@ -26,25 +27,25 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[0;33m'
 readonly CYAN='\033[0;36m'
 readonly RESET='\033[0m'
-readonly EMOJI_START="рџљЂ"
-readonly EMOJI_OK="вњ…"
-readonly EMOJI_WARN="вљ пёЏ"
-readonly EMOJI_ERR="рџљЁ"
+readonly EMOJI_START="🚀"
+readonly EMOJI_OK="✅"
+readonly EMOJI_WARN="⚠️"
+readonly EMOJI_ERR="🚨"
 
 # @description Prints ASCII logo, version and stylized header
 print_header() {
   cat << 'EOF'
-  в•”в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•—
-  в•‘          ____  _      _   ____  ___   ___                в•‘
-  в•‘         / ___|| |__  | | / ___|/ _ \/  _ \               в•‘
-  в•‘         \___ \| '_ \ | || |   | | | | | | |              в•‘
-  в•‘          ___) | | | || || |___| |_| | |_| |              в•‘
-  в•‘         |____/|_| |_||_| \____|\___/ \___/               в•‘
-  в•‘                                                          в•‘
-  в•‘           SysAdmin-Toolkit | System Health Module        в•‘
-  в•љв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ќ
+  ╔════════════════════════════════════════════════════════════╗
+  ║          ____  _      _   ____  ___   ___                  ║
+  ║         / ___|| |__  | | / ___|/ _ \/  _ \                 ║
+  ║         \___ \| '_ \ | || |   | | | | | | |                ║
+  ║          ___) | | | || || |___| |_| | |_| |                ║
+  ║         |____/|_| |_||_| \____|\___/ \___/                 ║
+  ║                                                            ║
+  ║           SysAdmin-Toolkit | System Health Module          ║
+  ╚════════════════════════════════════════════════════════════╝
 EOF
-  echo -e "${CYAN}рџ› пёЏ  Version: ${VERSION} | Platform: Linux${RESET}\n"
+  echo -e "${CYAN}🛠️  Version: ${VERSION} | Platform: Linux${RESET}\n"
 }
 
 # @description Displays structured man-like help with production tips
@@ -64,25 +65,37 @@ ${CYAN}EXAMPLES${RESET}
   # Check version
   ./system_health.sh --version
 
-${YELLOW}рџ’Ў PRODUCTION TIPS${RESET}
-  вЂў Run via cron for automated daily reports: 0 2 * * * /opt/toolkit/linux/system_health.sh >> /var/log/sa_health.log
-  вЂў Combine with 'watch' for live monitoring: watch -n 5 ./system_health.sh
-  вЂў Ensure sudo access for accurate service & process metrics.
+${YELLOW}💡 PRODUCTION TIPS${RESET}
+  • Run via cron for automated daily reports: 0 2 * * * /opt/toolkit/linux/system_health.sh >> /var/log/sa_health.log
+  • Combine with 'watch' for live monitoring: watch -n 5 ./system_health.sh
+  • Ensure sudo access for accurate service & process metrics.
 EOF
   exit 0
 }
 
 # @description Checks disk usage and triggers alert if > threshold
 check_disk() {
-  echo -e "${CYAN}рџ“¦ DISK USAGE${RESET}"
-  disk_usage=$(df -h --output=pcent,source,target | grep -vE '^(Filesystem|tmpfs|cdrom|devfs)' | sort -t' ' -k1 -rn)
+  echo -e "${CYAN}📦 DISK USAGE${RESET}"
+  local disk_usage
+  disk_usage=$(df -h --output=pcent,source,target 2>/dev/null | grep -vE '^(Filesystem|tmpfs|cdrom|devfs|overlay)' | sort -t' ' -k1 -rn || true)
+  
+  if [[ -z "$disk_usage" ]]; then
+    echo -e "${EMOJI_WARN} ${YELLOW}Could not retrieve disk usage information${RESET}"
+    echo
+    return
+  fi
   
   while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
     local usage_pct target
     usage_pct=$(echo "$line" | awk '{print $1}' | tr -d '%')
     target=$(echo "$line" | awk '{print $3}')
     
-    usage_pct=0  # Initialize variable
+    # Skip if usage_pct is not a number
+    if ! [[ "$usage_pct" =~ ^[0-9]+$ ]]; then
+      continue
+    fi
+    
     if [[ "$usage_pct" -ge "$DISK_ALERT_THRESHOLD" ]]; then
       echo -e "${EMOJI_ERR} ${RED}[CRITICAL] ${target}: ${usage_pct}% used (Threshold: ${DISK_ALERT_THRESHOLD}%)${RESET}"
     else
@@ -94,23 +107,45 @@ check_disk() {
 
 # @description Checks CPU load average and RAM usage
 check_cpu_ram() {
-  echo -e "${CYAN}вљЎ CPU & MEMORY${RESET}"
-  local load_avg
-  load_avg=$(awk '{print $1, $2, $3}' /proc/loadavg)
-  echo -e "${EMOJI_OK} Load Average (1/5/15m): ${YELLOW}${load_avg}${RESET}"
+  echo -e "${CYAN}⚡ CPU & MEMORY${RESET}"
   
-  local mem_total mem_available mem_used_pct
-  read -r mem_total <<< "$(grep MemTotal /proc/meminfo | awk '{print $2}')"
-  read -r mem_available <<< "$(grep MemAvailable /proc/meminfo | awk '{print $2}')"
-  mem_used_pct=$(( (mem_total - mem_available) * 100 / mem_total ))
+  # Check CPU load
+  if [[ -f /proc/loadavg ]]; then
+    local load_avg
+    load_avg=$(awk '{print $1, $2, $3}' /proc/loadavg)
+    echo -e "${EMOJI_OK} Load Average (1/5/15m): ${YELLOW}${load_avg}${RESET}"
+  else
+    echo -e "${EMOJI_WARN} ${YELLOW}Could not read CPU load information${RESET}"
+  fi
   
-  echo -e "${EMOJI_OK} RAM Usage: ${YELLOW}${mem_used_pct}%${RESET} (${mem_available}KB available)"
+  # Check RAM usage
+  if [[ -f /proc/meminfo ]]; then
+    local mem_total mem_available mem_used_pct
+    mem_total=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    mem_available=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
+    
+    if [[ -n "$mem_total" && -n "$mem_available" && "$mem_total" -gt 0 ]]; then
+      mem_used_pct=$(( (mem_total - mem_available) * 100 / mem_total ))
+      echo -e "${EMOJI_OK} RAM Usage: ${YELLOW}${mem_used_pct}%${RESET} (${mem_available}KB available)"
+    else
+      echo -e "${EMOJI_WARN} ${YELLOW}Could not calculate RAM usage${RESET}"
+    fi
+  else
+    echo -e "${EMOJI_WARN} ${YELLOW}Could not read memory information${RESET}"
+  fi
   echo
 }
 
 # @description Checks for failed systemctl services
 check_services() {
-  echo -e "${CYAN}вљ™пёЏ  SYSTEM SERVICES${RESET}"
+  echo -e "${CYAN}⚙️  SYSTEM SERVICES${RESET}"
+  
+  if ! command -v systemctl &>/dev/null; then
+    echo -e "${EMOJI_WARN} ${YELLOW}systemctl not found, skipping service check${RESET}"
+    echo
+    return
+  fi
+  
   local failed_services
   failed_services=$(systemctl --failed --no-legend --no-pager 2>/dev/null || true)
   
@@ -125,8 +160,13 @@ check_services() {
 
 # @description Displays top 5 CPU-consuming processes
 check_top_processes() {
-  echo -e "${CYAN}рџ“Љ TOP 5 CPU PROCESSES${RESET}"
-  ps aux --sort=-%cpu | head -6 | tail -5 | awk '{printf "%-8s %-10s %5s%%  %s\n", $1, $2, $3, $11}'
+  echo -e "${CYAN}📊 TOP 5 CPU PROCESSES${RESET}"
+  
+  if command -v ps &>/dev/null; then
+    ps aux --sort=-%cpu 2>/dev/null | head -6 | tail -5 | awk '{printf "%-8s %-10s %5s%%  %s\n", $1, $2, $3, $11}' || true
+  else
+    echo -e "${EMOJI_WARN} ${YELLOW}ps command not found${RESET}"
+  fi
   echo
 }
 
@@ -145,8 +185,9 @@ main() {
   check_services
   check_top_processes
   
-  echo -e "${CYAN}вњЁ Health check completed at $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
+  echo -e "${CYAN}✨ Health check completed at $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
 }
 
 main "$@"
+'@ | Set-Content "src/linux/system_health.sh" -Encoding UTF8
 

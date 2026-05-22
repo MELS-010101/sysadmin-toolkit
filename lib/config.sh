@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-# lib/config.sh - Безопасный парсер key=value конфигов без eval()
+﻿# lib/config.sh - Р‘РµР·РѕРїР°СЃРЅС‹Р№ РїР°СЂСЃРµСЂ key=value РєРѕРЅС„РёРіРѕРІ Р±РµР· eval()
 set -euo pipefail
 
 # @description Loads .conf/.env files safely. Exports as SAT_KEY=value
@@ -14,15 +13,15 @@ load_config() {
 
   log "DEBUG" "Loading config: ${config_file}"
   while IFS='=' read -r key value || [[ -n "$key" ]]; do
-    # Пропуск комментариев и пустых строк
+    # РџСЂРѕРїСѓСЃРє РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ Рё РїСѓСЃС‚С‹С… СЃС‚СЂРѕРє
     [[ "$key" =~ ^[[:space:]]*# ]] && continue
     [[ -z "$key" ]] && continue
 
-    # Очистка пробелов и кавычек
+    # РћС‡РёСЃС‚РєР° РїСЂРѕР±РµР»РѕРІ Рё РєР°РІС‹С‡РµРє
     key=$(echo "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     value=$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/^["'\'']\(.*\)["'\'']$/\1/')
 
-    # Безопасная валидация имени переменной
+    # Р‘РµР·РѕРїР°СЃРЅР°СЏ РІР°Р»РёРґР°С†РёСЏ РёРјРµРЅРё РїРµСЂРµРјРµРЅРЅРѕР№
     if [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
       export "SAT_${key^^}"="$value"
     else

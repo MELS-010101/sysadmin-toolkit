@@ -1,5 +1,4 @@
-﻿#!/usr/bin/env bash
-# SysAdmin-Toolkit Main Entrypoint
+﻿# SysAdmin-Toolkit Main Entrypoint
 
 set -e
 

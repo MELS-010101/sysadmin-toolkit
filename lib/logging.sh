@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-# lib/logging.sh - Кроссплатформенный логгер с уровнями и ANSI-цветами
+﻿# lib/logging.sh - РљСЂРѕСЃСЃРїР»Р°С‚С„РѕСЂРјРµРЅРЅС‹Р№ Р»РѕРіРіРµСЂ СЃ СѓСЂРѕРІРЅСЏРјРё Рё ANSI-С†РІРµС‚Р°РјРё
 set -euo pipefail
 
 readonly LOG_LEVEL_DEBUG=0
@@ -8,7 +7,7 @@ readonly LOG_LEVEL_WARN=2
 readonly LOG_LEVEL_ERROR=3
 readonly LOG_LEVEL_FATAL=4
 
-# Переопределяется через ENV: export SAT_LOG_LEVEL=0 (DEBUG)
+# РџРµСЂРµРѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‡РµСЂРµР· ENV: export SAT_LOG_LEVEL=0 (DEBUG)
 readonly SAT_LOG_LEVEL="${SAT_LOG_LEVEL:-1}"
 
 readonly COLOR_RESET="\033[0m"
@@ -22,11 +21,11 @@ readonly COLOR_FATAL="\033[0;91m\033[1m"
 log() {
   local level="$1" message="$2" level_code color emoji
   case "$level" in
-    DEBUG)  level_code=$LOG_LEVEL_DEBUG; color="$COLOR_DEBUG"; emoji="🔍" ;;
-    INFO)   level_code=$LOG_LEVEL_INFO;  color="$COLOR_INFO";  emoji="ℹ️" ;;
-    WARN)   level_code=$LOG_LEVEL_WARN;  color="$COLOR_WARN";  emoji="⚠️" ;;
-    ERROR)  level_code=$LOG_LEVEL_ERROR; color="$COLOR_ERROR"; emoji="🚨" ;;
-    FATAL)  level_code=$LOG_LEVEL_FATAL; color="$COLOR_FATAL"; emoji="💀" ;;
+    DEBUG)  level_code=$LOG_LEVEL_DEBUG; color="$COLOR_DEBUG"; emoji="рџ”Ќ" ;;
+    INFO)   level_code=$LOG_LEVEL_INFO;  color="$COLOR_INFO";  emoji="в„№пёЏ" ;;
+    WARN)   level_code=$LOG_LEVEL_WARN;  color="$COLOR_WARN";  emoji="вљ пёЏ" ;;
+    ERROR)  level_code=$LOG_LEVEL_ERROR; color="$COLOR_ERROR"; emoji="рџљЁ" ;;
+    FATAL)  level_code=$LOG_LEVEL_FATAL; color="$COLOR_FATAL"; emoji="рџ’Ђ" ;;
     *)      echo -e "${COLOR_ERROR}[UNKNOWN] Invalid log level: ${level}${COLOR_RESET}" >&2; return 1 ;;
   esac
 

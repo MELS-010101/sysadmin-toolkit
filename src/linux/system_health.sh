@@ -5,17 +5,12 @@
 # OS: Linux (Ubuntu/Debian/RHEL)
 # Style: Google Bash Style Guide + ShellDoc
 # ==============================================================================
+
 # Подключение библиотек
-readonly TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-source "${TOOLKIT_ROOT}/lib/logging.sh"
-source "${TOOLKIT_ROOT}/lib/config.sh"
+TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "${TOOLKIT_ROOT}/lib/logging.sh" 2>/dev/null || true
+source "${TOOLKIT_ROOT}/lib/config.sh" 2>/dev/null || true
 
-# Загрузка конфига (если есть)
-load_config "~/.config/sat/config.conf" 2>/dev/null || true
-
-# Использование в коде:
-# log "INFO" "Starting system health check..."
-# log "WARN" "High CPU load detected: ${load_avg}"
 set -euo pipefail
 
 readonly VERSION="1.0.0"
@@ -27,28 +22,18 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[0;33m'
 readonly CYAN='\033[0;36m'
 readonly RESET='\033[0m'
-readonly EMOJI_START=""
-readonly EMOJI_OK="✅"
-readonly EMOJI_WARN="⚠️"
-readonly EMOJI_ERR="🚨"
 
-# @description Prints ASCII logo, version and stylized header
+# @description Prints header
 print_header() {
-  cat << 'EOF'
-  ╔════════════════════════════════════════════════════════════╗
-  ║          ____  _      _   ____  ___   ___                  ║
-  ║         / ___|| |__  | | / ___|/ _ \/  _ \                 ║
-  ║         \___ \| '_ \ | || |   | | | | | | |                ║
-  ║          ___) | | | || || |___| |_| | |_| |                ║
-  ║         |____/|_| |_||_| \____|\___/ \___/                 ║
-  ║                                                            ║
-  ║           SysAdmin-Toolkit | System Health Module          ║
-  ╚════════════════════════════════════════════════════════════╝
-EOF
-  echo -e "${CYAN}🛠️  Version: ${VERSION} | Platform: Linux${RESET}\n"
+  echo ""
+  echo "  ╔══════════════════════════════════════════════════════════╗"
+  echo "  ║          SysAdmin-Toolkit | System Health Module         ║"
+  echo "  ╚══════════════════════════════════════════════════════════╝"
+  echo -e "${CYAN}  Version: ${VERSION} | Platform: Linux${RESET}"
+  echo ""
 }
 
-# @description Displays structured man-like help with production tips
+# @description Displays help
 show_help() {
   cat << EOF
 ${CYAN}USAGE${RESET}
@@ -59,67 +44,61 @@ ${CYAN}OPTIONS${RESET}
   -v, --version   Show version and exit
 
 ${CYAN}EXAMPLES${RESET}
-  # Run full health check
   ./system_health.sh
-
-  # Check version
   ./system_health.sh --version
-
-${YELLOW}💡 PRODUCTION TIPS${RESET}
-  • Run via cron for automated daily reports: 0 2 * * * /opt/toolkit/linux/system_health.sh >> /var/log/sa_health.log
-  • Combine with 'watch' for live monitoring: watch -n 5 ./system_health.sh
-  • Ensure sudo access for accurate service & process metrics.
 EOF
   exit 0
 }
 
-# @description Checks disk usage and triggers alert if > threshold
+# @description Checks disk usage
 check_disk() {
   echo -e "${CYAN}📦 DISK USAGE${RESET}"
-  local disk_usage
-  # FIX: Moved || true outside to avoid syntax error in subshell
-  disk_usage=$(df -h --output=pcent,source,target 2>/dev/null | grep -vE '^(Filesystem|tmpfs|cdrom|devfs|overlay)' | sort -t ' ' -k1 -rn) || disk_usage=""
   
-  if [[ -z "$disk_usage" ]]; then
-    echo -e "${EMOJI_WARN} ${YELLOW}Could not retrieve disk usage information${RESET}"
-    echo
+  if ! command -v df &>/dev/null; then
+    echo -e "${YELLOW}  df command not found${RESET}"
+    echo ""
     return
   fi
   
-  while IFS= read -r line; do
-    [[ -z "$line" ]] && continue
-    local usage_pct target
-    usage_pct=$(echo "$line" | awk '{print $1}' | tr -d '%')
-    target=$(echo "$line" | awk '{print $3}')
+  local disk_info
+  disk_info=$(df -h 2>/dev/null | grep -E '^/' || true)
+  
+  if [[ -z "$disk_info" ]]; then
+    echo -e "${YELLOW}  Could not retrieve disk information${RESET}"
+    echo ""
+    return
+  fi
+  
+  echo "$disk_info" | while read -r line; do
+    local filesystem size used avail use_pct mount
+    read -r filesystem size used avail use_pct mount <<< "$line"
     
-    # Skip if usage_pct is not a number
-    if ! [[ "$usage_pct" =~ ^[0-9]+$ ]]; then
-      continue
-    fi
+    # Remove % sign
+    use_pct="${use_pct%\%}"
     
-    if [[ "$usage_pct" -ge "$DISK_ALERT_THRESHOLD" ]]; then
-      echo -e "${EMOJI_ERR} ${RED}[CRITICAL] ${target}: ${usage_pct}% used (Threshold: ${DISK_ALERT_THRESHOLD}%)${RESET}"
-    else
-      echo -e "${EMOJI_OK} ${GREEN}${target}: ${usage_pct}% used${RESET}"
+    if [[ "$use_pct" =~ ^[0-9]+$ ]]; then
+      if [[ "$use_pct" -ge "$DISK_ALERT_THRESHOLD" ]]; then
+        echo -e "${RED}  [CRITICAL] ${mount}: ${use_pct}% used${RESET}"
+      else
+        echo -e "${GREEN}  [OK] ${mount}: ${use_pct}% used${RESET}"
+      fi
     fi
-  done <<< "$disk_usage"
-  echo
+  done
+  echo ""
 }
 
-# @description Checks CPU load average and RAM usage
+# @description Checks CPU and RAM
 check_cpu_ram() {
   echo -e "${CYAN}⚡ CPU & MEMORY${RESET}"
   
-  # Check CPU load
+  # CPU Load
   if [[ -f /proc/loadavg ]]; then
     local load_avg
-    load_avg=$(awk '{print $1, $2, $3}' /proc/loadavg)
-    echo -e "${EMOJI_OK} Load Average (1/5/15m): ${YELLOW}${load_avg}${RESET}"
-  else
-    echo -e "${EMOJI_WARN} ${YELLOW}Could not read CPU load information${RESET}"
+    load_avg=$(cat /proc/loadavg | awk '{print $1, $2, $3}')
+    echo -e "  Load Average: ${YELLOW}${load_avg}${RESET}"
   fi
   
-  # Check RAM usage
+  # RAM Usage
   if [[ -f /proc/meminfo ]]; then
     local mem_total mem_available mem_used_pct
     mem_total=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -127,51 +106,45 @@ check_cpu_ram() {
     
     if [[ -n "$mem_total" && -n "$mem_available" && "$mem_total" -gt 0 ]]; then
       mem_used_pct=$(( (mem_total - mem_available) * 100 / mem_total ))
-      echo -e "${EMOJI_OK} RAM Usage: ${YELLOW}${mem_used_pct}%${RESET} (${mem_available}KB available)"
-    else
-      echo -e "${EMOJI_WARN} ${YELLOW}Could not calculate RAM usage${RESET}"
+      echo -e "  RAM Usage: ${YELLOW}${mem_used_pct}%${RESET}"
     fi
-  else
-    echo -e "${EMOJI_WARN} ${YELLOW}Could not read memory information${RESET}"
   fi
-  echo
+  echo ""
 }
 
-# @description Checks for failed systemctl services
+# @description Checks services
 check_services() {
-  echo -e "${CYAN}⚙️  SYSTEM SERVICES${RESET}"
+  echo -e "${CYAN}⚙️  SERVICES${RESET}"
   
   if ! command -v systemctl &>/dev/null; then
-    echo -e "${EMOJI_WARN} ${YELLOW}systemctl not found, skipping service check${RESET}"
-    echo
+    echo -e "${YELLOW}  systemctl not available${RESET}"
+    echo ""
     return
   fi
   
-  local failed_services
-  failed_services=$(systemctl --failed --no-legend --no-pager 2>/dev/null || true)
+  local failed
+  failed=$(systemctl --failed --no-legend 2>/dev/null || true)
   
-  if [[ -z "$failed_services" ]]; then
-    echo -e "${EMOJI_OK} ${GREEN}All critical services are running.${RESET}"
+  if [[ -z "$failed" ]]; then
+    echo -e "${GREEN}  All services running${RESET}"
   else
-    echo -e "${EMOJI_ERR} ${RED}Failed Services Detected:${RESET}"
-    echo "$failed_services" | awk '{printf "  %s (%s)\n", $1, $3}'
+    echo -e "${RED}  Failed services detected${RESET}"
+    echo "$failed" | head -5
   fi
-  echo
+  echo ""
 }
 
-# @description Displays top 5 CPU-consuming processes
-check_top_processes() {
-  echo -e "${CYAN}📊 TOP 5 CPU PROCESSES${RESET}"
+# @description Top processes
+check_processes() {
+  echo -e "${CYAN}📊 TOP PROCESSES${RESET}"
   
   if command -v ps &>/dev/null; then
-    ps aux --sort=-%cpu 2>/dev/null | head -6 | tail -5 | awk '{printf "%-8s %-10s %5s%%  %s\n", $1, $2, $3, $11}' || true
-  else
-    echo -e "${EMOJI_WARN} ${YELLOW}ps command not found${RESET}"
+    ps aux --sort=-%cpu 2>/dev/null | head -6 | tail -5 | awk '{printf "  %-8s %5s%%  %s\n", $2, $3, $11}' || true
   fi
-  echo
+  echo ""
 }
 
-# @description Main execution flow
+# @description Main
 main() {
   for arg in "$@"; do
     case "$arg" in
@@ -184,25 +157,7 @@ main() {
   check_disk
   check_cpu_ram
   check_services
-  check_top_processes
+  check_processes
   
-  echo -e "${CYAN}✨ Health check completed at $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
+  echo -e "${CYAN}✨ Completed at $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
 }
-
-main "$@"
-'@ | Set-Content "src/linux/system_health.sh" -Encoding UTF8
-
-# Обновляем версию до 1.4.2
-$json = Get-Content "package.json" | ConvertFrom-Json
-$json.version = "1.4.2"
-$json | ConvertTo-Json -Depth 10 | Set-Content "package.json"
-
-$xml = [xml](Get-Content "packaging\nuget\sysadmin-toolkit.nuspec")
-$xml.package.metadata.version = "1.4.2"
-$xml.Save("packaging\nuget\sysadmin-toolkit.nuspec")
-
-git add -A
-git commit -m "fix: move || true outside subshell to fix syntax error (v1.4.2)"
-git tag v1.4.2
-git push origin main
-git push origin v1.4.2

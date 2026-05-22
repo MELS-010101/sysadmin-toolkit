@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>sysadmin-toolkit</id>
-    <version>2.2.6</version>
+    <version>3.0.0</version>
     <title>SysAdmin Toolkit</title>
     <authors>MELS-010101</authors>
     <description>Cross-platform CLI automation toolkit for system administrators.</description>

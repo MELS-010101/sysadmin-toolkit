@@ -1,11 +1,10 @@
 {
     "name":  "@mels-010101/sysadmin-toolkit",
-    "version":  "2.2.6",
+    "version":  "3.0.0",
     "description":  "Cross-platform CLI automation toolkit",
     "main":  "bin/sat",
     "bin":  {
-                "sat":  "./bin/sat",
-                "sat.cmd":  "./bin/sat.cmd"
+                "sat":  "./bin/sat.js"
             },
     "repository":  {
                        "type":  "git",

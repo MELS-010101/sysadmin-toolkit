@@ -1,4 +1,5 @@
-﻿# ==============================================================================
+﻿$content = @'
+# ==============================================================================
 # Module: System Health Monitor
 # OS: Linux (Ubuntu/Debian/RHEL)
 # ==============================================================================
@@ -38,16 +39,8 @@ show_help() {
 
 check_disk() {
   echo -e "${CYAN}DISK USAGE${RESET}"
-  
-  if ! command -v df &>/dev/null; then
-    echo "  df command not found"
-    echo ""
-    return
-  fi
-  
   df -h 2>/dev/null | grep -E '^/' | while read -r filesystem size used avail use_pct mount; do
     use_pct="${use_pct%\%}"
-    
     if [[ "$use_pct" =~ ^[0-9]+$ ]]; then
       if [[ "$use_pct" -ge "$DISK_ALERT_THRESHOLD" ]]; then
         echo -e "  ${RED}[CRITICAL] ${mount}: ${use_pct}% used${RESET}"
@@ -61,18 +54,15 @@ check_disk() {
 
 check_cpu_ram() {
   echo -e "${CYAN}CPU & MEMORY${RESET}"
-  
   if [[ -f /proc/loadavg ]]; then
     local load_avg
     load_avg=$(awk '{print $1, $2, $3}' /proc/loadavg)
     echo -e "  Load Average: ${YELLOW}${load_avg}${RESET}"
   fi
-  
   if [[ -f /proc/meminfo ]]; then
     local mem_total mem_available mem_used_pct
     mem_total=$(grep MemTotal /proc/meminfo | awk '{print $2}')
     mem_available=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
-    
     if [[ -n "$mem_total" && -n "$mem_available" && "$mem_total" -gt 0 ]]; then
       mem_used_pct=$(( (mem_total - mem_available) * 100 / mem_total ))
       echo -e "  RAM Usage: ${YELLOW}${mem_used_pct}%${RESET}"
@@ -83,11 +73,9 @@ check_cpu_ram() {
 
 check_services() {
   echo -e "${CYAN}SERVICES${RESET}"
-  
   if command -v systemctl &>/dev/null; then
     local failed
     failed=$(systemctl --failed --no-legend 2>/dev/null || true)
-    
     if [[ -z "$failed" ]]; then
       echo -e "${GREEN}  All services running${RESET}"
     else
@@ -101,7 +89,6 @@ check_services() {
 
 check_processes() {
   echo -e "${CYAN}TOP PROCESSES${RESET}"
-  
   if command -v ps &>/dev/null; then
     ps aux --sort=-%cpu 2>/dev/null | head -6 | tail -5 | awk '{printf "  %-8s %5s%%  %s\n", $2, $3, $11}' || true
   fi

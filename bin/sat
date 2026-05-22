@@ -1,7 +1,8 @@
-﻿
+﻿# SysAdmin-Toolkit Main Entrypoint
+
 set -e
 
-VERSION="1.8.3"
+VERSION="1.9.6"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 LINUX_DIR="$ROOT_DIR/src/linux"
